@@ -1,0 +1,23 @@
+.scroll-icon {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.scroll-icon:hover {
+  transform: scale(1.1);
+  color: #0d6efd;
+}
+
+.explore-menu-list-item {
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.explore-menu-list-item img.active {
+  border: 3px solid #0d6efd;
+}
+.category-section {
+  width: 100%;
+  margin-top: 2rem;
+}

@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174","http://localhost:5175"})
 public class UserComplaintController {
 
     @Autowired

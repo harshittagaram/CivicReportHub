@@ -21,13 +21,11 @@ const MyReports = () => {
     }
 
     try {
-      console.log("Fetching reports for authenticated user");
       const response = await axios.get("http://localhost:8081/api/user/reports", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("MyReports API Response:", response.data);
       setReports(response.data);
       setError(null);
     } catch (err) {
@@ -84,10 +82,7 @@ const MyReports = () => {
           <div className="row">
             {reports.map((report) => (
               <div className="col-md-6 mb-4" key={report.id}>
-                <Link
-                  to={`/user/report/${report.id}`}
-                  className="text-decoration-none text-dark"
-                >
+                <div className="text-decoration-none text-dark">
                   <div className="card shadow-sm h-100">
                     {report.imageUrl && (
                       <img
@@ -131,7 +126,7 @@ const MyReports = () => {
                       )}
                     </div>
                   </div>
-                </Link>
+                </div>
               </div>
             ))}
           </div>

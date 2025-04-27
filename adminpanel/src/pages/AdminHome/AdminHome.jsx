@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/AdminSidebar/AdminSidebar";
 import ReportCategoryFilter from "../../components/ReportCategoryFilter/ReportCategoryFilter";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const AdminHome = () => {
   const [totalReports, setTotalReports] = useState(0);
@@ -11,18 +12,27 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get("http://localhost:8081/api/admin/complaints"); // Update if port/endpoint differs
+        const res = await axios.get(
+          "http://localhost:8081/api/admin/complaints"
+        );
         const reports = res.data;
+
+        if (!Array.isArray(reports)) {
+          throw new Error("Expected an array of reports");
+        }
 
         setTotalReports(reports.length);
         setPendingReports(
-          reports.filter((r) => r.status.toLowerCase() === "pending").length
+          reports.filter((r) => r.status?.toLowerCase() === "pending").length
         );
         setResolvedReports(
-          reports.filter((r) => r.status.toLowerCase() === "resolved").length
+          reports.filter((r) => r.status?.toLowerCase() === "resolved").length
         );
       } catch (error) {
-        console.error("Error fetching admin reports:", error);
+        console.error(
+          "Error fetching admin reports:",
+          error.response ? error.response.data : error.message
+        );
       }
     };
 
@@ -31,10 +41,7 @@ const AdminHome = () => {
 
   return (
     <div className="d-flex">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <div className="flex-grow-1 p-4" style={{ marginLeft: "250px" }}>
         <div className="mb-5">
           <h2 className="fw-bold">Welcome, Admin 👋</h2>
@@ -42,36 +49,44 @@ const AdminHome = () => {
             Here's a quick overview of what's happening.
           </p>
         </div>
-
-        {/* Dashboard Cards */}
         <div className="row g-4">
           <div className="col-md-4">
             <div className="card text-white bg-primary shadow-sm border-0">
               <div className="card-body">
-                <h6 className="card-title mb-2">Total Reports</h6>
-                <h3 className="card-text">{totalReports}</h3>
+                <Link to="/reports" className="text-white text-decoration-none">
+                  <h6 className="card-title mb-2">Total Reports</h6>
+                  <h3 className="card-text">{totalReports}</h3>
+                </Link>
               </div>
             </div>
           </div>
           <div className="col-md-4">
             <div className="card text-dark bg-warning shadow-sm border-0">
               <div className="card-body">
-                <h6 className="card-title mb-2">Pending Reports</h6>
-                <h3 className="card-text">{pendingReports}</h3>
+                <Link
+                  to="/pending-reports"
+                  className="text-dark text-decoration-none"
+                >
+                  <h6 className="card-title mb-2">Pending Reports</h6>
+                  <h3 className="card-text">{pendingReports}</h3>
+                </Link>
               </div>
             </div>
           </div>
           <div className="col-md-4">
             <div className="card text-white bg-success shadow-sm border-0">
               <div className="card-body">
-                <h6 className="card-title mb-2">Resolved Reports</h6>
-                <h3 className="card-text">{resolvedReports}</h3>
+                <Link
+                  to="/resolved-reports"
+                  className="text-white text-decoration-none"
+                >
+                  <h6 className="card-title mb-2">Resolved Reports</h6>
+                  <h3 className="card-text">{resolvedReports}</h3>
+                </Link>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Category Filter Component */}
         <div className="mt-5">
           <ReportCategoryFilter />
         </div>

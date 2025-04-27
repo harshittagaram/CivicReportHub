@@ -19,7 +19,9 @@ const AdminSidebar = () => {
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="admin-sidebar bg-dark text-white">
-          <h4 className="p-3 border-bottom">Admin Panel</h4>
+          <Link to="/" className="text-white text-decoration-none">
+            <h4 className="p-3 border-bottom">Admin Panel</h4>
+          </Link>
           <ul className="nav flex-column px-3">
             <li className="nav-item mb-2">
               <Link to="/" className="nav-link text-white">
@@ -28,7 +30,17 @@ const AdminSidebar = () => {
             </li>
             <li className="nav-item mb-2">
               <Link to="/reports" className="nav-link text-white">
-                Reports List
+                All Reports List
+              </Link>
+            </li>
+            <li className="nav-item mb-2">
+              <Link to="/pending-reports" className="nav-link text-white">
+                Pending Reports
+              </Link>
+            </li>
+            <li className="nav-item mb-2">
+              <Link to="/in-progress-reports" className="nav-link text-white">
+                In Progress Reports
               </Link>
             </li>
             <li className="nav-item mb-2">

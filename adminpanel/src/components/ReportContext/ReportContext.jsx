@@ -12,15 +12,19 @@ export const ReportProvider = ({ children }) => {
       const response = await axios.get(
         "http://localhost:8081/api/admin/complaints"
       );
-      console.log("ReportContext API Response:", response.data);
       if (!Array.isArray(response.data)) {
-        throw new Error("Expected an array of reports");
+        throw new Error(
+          "Expected an array of reports, but got: " + typeof response.data
+        );
       }
       setReportList(response.data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching reports:", error.response || error);
-      setError("Failed to load reports.");
+      console.error(
+        "Error fetching reports:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Failed to load reports. Check console for details.");
       setReportList([]);
     }
   };

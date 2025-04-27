@@ -4,10 +4,11 @@ import Navbar from "../../components/Navbar/Navbar";
 import { reverseGeocode } from "../../services/locationService";
 import axios from "axios";
 
-
 const ReportNow = () => {
   const [location, setLocation] = useState("");
   const { register, handleSubmit } = useForm();
+
+  const token = localStorage.getItem("token"); // Get token from localStorage
 
   const handleLocationDetection = () => {
     if (navigator.geolocation) {
@@ -39,7 +40,6 @@ const ReportNow = () => {
     formData.append("category", data.category);
     formData.append("location", location);
 
-    // Handle image if user uploads one
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
@@ -51,6 +51,7 @@ const ReportNow = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // Add Authorization header here
           },
         }
       );
@@ -62,7 +63,6 @@ const ReportNow = () => {
     }
   };
 
-
   return (
     <div>
       <Navbar />
@@ -72,7 +72,6 @@ const ReportNow = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="p-4 border rounded shadow"
         >
-          {/* Your Name */}
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
               Your Name
@@ -85,7 +84,6 @@ const ReportNow = () => {
             />
           </div>
 
-          {/* Description */}
           <div className="mb-3">
             <label htmlFor="description" className="form-label">
               Description
@@ -97,7 +95,6 @@ const ReportNow = () => {
             />
           </div>
 
-          {/* Category */}
           <div className="mb-3">
             <label htmlFor="category" className="form-label">
               Category
@@ -115,7 +112,6 @@ const ReportNow = () => {
             </select>
           </div>
 
-          {/* Location */}
           <div className="mb-3">
             <label className="form-label">Location</label>
             <input
@@ -133,7 +129,6 @@ const ReportNow = () => {
             </button>
           </div>
 
-          {/* Image Upload */}
           <div className="mb-3">
             <label className="form-label">Upload Image (Optional)</label>
             <input
@@ -143,7 +138,6 @@ const ReportNow = () => {
             />
           </div>
 
-          {/* Submit */}
           <div className="text-center">
             <button type="submit" className="btn btn-success btn-lg">
               Submit Report

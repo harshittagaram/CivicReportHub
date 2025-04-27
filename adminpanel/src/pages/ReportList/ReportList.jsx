@@ -16,7 +16,7 @@ const ReportList = () => {
         className="flex-grow-1"
         style={{ marginLeft: "250px", padding: "20px" }}
       >
-        <h2 className="text-center mb-4">Report List</h2>
+        <h2 className="text-center mb-4">All Report List</h2>
 
         {/* Filter & Search */}
         <div className="row justify-content-center">

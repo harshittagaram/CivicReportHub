@@ -4,8 +4,6 @@ import ReportItem from "../ReportItem/ReportItem";
 
 const ReportDisplay = ({ category, searchText, status }) => {
   const { reportList, error } = useContext(ReportContext);
-  console.log("ReportList from Context:", reportList);
-
   const filteredReports = reportList.filter((report) => {
     if (!report || !report.id) {
       console.warn("Invalid report:", report);

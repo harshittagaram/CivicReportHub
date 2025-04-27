@@ -12,15 +12,7 @@ const ReportItem = ({
 }) => {
   const [showId, setShowId] = useState(false);
 
-  console.log("ReportItem Props:", {
-    id,
-    userName,
-    description,
-    imageUrl,
-    location,
-    category,
-    status,
-  });
+  
 
   if (!id) {
     console.warn("ReportItem received invalid ID:", id);
@@ -54,11 +46,6 @@ const ReportItem = ({
             <p>
               <strong>Status:</strong> {status || "Pending"}
             </p>
-            {showId && (
-              <p className="text-muted">
-                <strong>ID:</strong> {id || "Not available"}
-              </p>
-            )}
           </div>
         </div>
       </Link>

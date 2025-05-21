@@ -1,3 +1,8 @@
+
+![Screenshot 2025-05-21 233713](https://github.com/user-attachments/assets/66ba5e93-e881-49e8-b3c1-67f8f8a01d17)
+![Screenshot 2025-05-21 233626](https://github.com/user-attachments/assets/95e1eade-3ee1-4f27-bea0-cfebd1e8bb88)
+![Screenshot 2025-05-21 233657](https://github.com/user-attachments/assets/dc3c1dde-b654-42f6-b884-60f684a584ba)
+![Screenshot 2025-05-21 233755](https://github.com/user-attachments/assets/4d4394df-af39-43da-ba09-6ba0c59134d7)
 # 🏙️ Civic Report Hub
 
 **Civic Report Hub** is a full-stack civic engagement platform that allows citizens to report local environmental and civic issues—such as garbage dumping, potholes, and water logging—so that municipal workers and administrators can address them efficiently.
@@ -54,11 +59,8 @@ cd civic-report-hub-backend
 
 # Configure application.properties:
 # - MongoDB URI
-# - AWS credentials and bucket![Screenshot 2025-05-21 233713](https://github.com/user-attachments/assets/66ba5e93-e881-49e8-b3c1-67f8f8a01d17)
+# - AWS credentials and bucket!
 
 # - Server port (default 8081)
 
 ./mvnw spring-boot:run
-![Screenshot 2025-05-21 233626](https://github.com/user-attachments/assets/95e1eade-3ee1-4f27-bea0-cfebd1e8bb88)
-![Screenshot 2025-05-21 233657](https://github.com/user-attachments/assets/dc3c1dde-b654-42f6-b884-60f684a584ba)
-![Screenshot 2025-05-21 233755](https://github.com/user-attachments/assets/4d4394df-af39-43da-ba09-6ba0c59134d7)

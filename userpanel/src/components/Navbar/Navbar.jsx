@@ -1,54 +1,43 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem("token"); // checking if token exists
+  const { isAuthenticated, logout } = useContext(AuthContext);
+  const [scrolled, setScrolled] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // remove the token
-    navigate("/login"); // redirect to login page
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-success">
-      <div className="container">
+    <nav
+      className={`navbar navbar-expand-lg fixed-top ${
+        scrolled ? "scrolled" : ""
+      }`}
+    >
+      <div className="container px-3">
         <Link className="navbar-brand" to="/">
-          Clean City
+          <i className="fas fa-leaf me-2"></i>CleanCity
         </Link>
         <button
           className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/">
-                Home
-              </Link>
-            </li>
-
-            {isLoggedIn ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/my-reports">
-                    My Reports
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className="btn btn-danger nav-link"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </>
-            ) : (
+            {!isAuthenticated ? (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login">
@@ -59,6 +48,27 @@ const Navbar = () => {
                   <Link className="nav-link" to="/register">
                     Register
                   </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/report">
+                    Report Issue
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/my-reports">
+                    My Reports
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-outline-danger ms-2"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
                 </li>
               </>
             )}

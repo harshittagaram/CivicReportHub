@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+// import Map from "./components/Map";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import { ReportProvider } from "./components/ReportContext/ReportContext"
@@ -13,6 +14,7 @@ function App() {
     <ReportProvider>
       <div>
         <ToastContainer position="top-right" autoClose={3000} />
+        {/* <Map /> */}
         <Routes>
           <Route path="/" element={<AdminHome />} />
           <Route path="/reports" element={<ReportList />} />

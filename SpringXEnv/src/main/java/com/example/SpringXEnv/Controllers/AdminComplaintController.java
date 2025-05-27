@@ -1,6 +1,5 @@
 package com.example.SpringXEnv.Controllers;
 
-
 import com.example.SpringXEnv.Models.Complaint;
 import com.example.SpringXEnv.Service.ComplaintService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/complaints")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5175"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"}, allowCredentials = "true")
 public class AdminComplaintController {
 
     @Autowired
@@ -23,9 +22,9 @@ public class AdminComplaintController {
     public List<Complaint> getAllComplaints(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String location
-    ) {
-        return complaintService.getAllComplaints(status, category, location);
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "desc") String sort) {
+        return complaintService.getAllComplaints(status, category, location, sort);
     }
 
     @GetMapping("/{id}")
@@ -45,8 +44,6 @@ public class AdminComplaintController {
         return complaintService.getComplaintsByStatus("In Progress");
     }
 
-
-
     @PutMapping("/{id}")
     public Complaint updateComplaint(@PathVariable String id, @RequestBody Map<String, String> updates) {
         String status = updates.get("status");
@@ -58,10 +55,9 @@ public class AdminComplaintController {
     public ResponseEntity<Void> deleteComplaint(@PathVariable String id) {
         boolean deleted = complaintService.deleteComplaint(id);
         if (deleted) {
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // 404 Not Found if complaint doesn't exist
+            return ResponseEntity.notFound().build();
         }
     }
-
 }

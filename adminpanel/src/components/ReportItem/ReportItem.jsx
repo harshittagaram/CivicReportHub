@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 const ReportItem = ({
   id,
   userName,
+  userFullName,
   description,
   imageUrl,
   location,
@@ -11,8 +12,6 @@ const ReportItem = ({
   status,
 }) => {
   const [showId, setShowId] = useState(false);
-
-  
 
   if (!id) {
     console.warn("ReportItem received invalid ID:", id);
@@ -32,10 +31,12 @@ const ReportItem = ({
           <img
             src={imageUrl || "https://via.placeholder.com/150"}
             className="card-img-top"
-            alt={userName || "Report"}
+            alt={userFullName || userName || "Report"}
           />
           <div className="card-body">
-            <h5 className="card-title">{userName || "Unnamed Report"}</h5>
+            <h5 className="card-title">
+              {userFullName || userName || "Unnamed Report"}
+            </h5>
             <p className="card-text">{description || "No description"}</p>
             <p>
               <strong>Location:</strong> {location || "Unknown"}

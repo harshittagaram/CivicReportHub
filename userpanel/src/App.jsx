@@ -1,23 +1,16 @@
-import { useState, useEffect } from "react";
+import { useContext } from "react";
 import "./App.css";
 import Home from "./pages/Home/Home";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import ReportNow from "./pages/ReportNow/ReportNow";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import MyReports from "./pages/MyReports/MyReports";
 import UserReportDetail from "./pages/UserReportDetail/UserReportDetail";
+import { AuthContext } from "./context/AuthContext";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("token")
-  );
-  const location = useLocation();
-
-  useEffect(() => {
-    // Update authentication status when token changes
-    setIsAuthenticated(!!localStorage.getItem("token"));
-  }, [location]);
+  const { isAuthenticated } = useContext(AuthContext);
 
   const ProtectedRoute = ({ children }) => {
     if (!isAuthenticated) {

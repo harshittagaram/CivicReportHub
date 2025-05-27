@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
@@ -7,19 +7,23 @@ import { ReportContext } from "../../components/ReportContext/ReportContext";
 
 const ReportDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { refreshReports } = useContext(ReportContext);
   const [report, setReport] = useState(null);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("");
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchReportDetails = async () => {
       try {
         console.log("Fetching report with ID:", id);
+        const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:8081/api/admin/complaints/${id}`
+          `http://localhost:8081/api/admin/complaints/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         console.log("ReportDetail API Response:", response.data);
         setReport(response.data);
@@ -45,15 +49,13 @@ const ReportDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       console.log("Sending update payload:", { status, remarks: feedback });
+      const token = localStorage.getItem("token");
       const response = await axios.put(
         `http://localhost:8081/api/admin/complaints/${id}`,
-        {
-          status,
-          remarks: feedback,
-        }
+        { status, remarks: feedback },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Update API Response:", response.data);
       setReport(response.data);
@@ -67,6 +69,28 @@ const ReportDetail = () => {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this report?")) return;
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:8081/api/admin/complaints/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (refreshReports) refreshReports();
+      toast.success("Report deleted successfully!");
+      navigate("/reports");
+    } catch (error) {
+      console.error("Error deleting report:", error.response?.data || error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to delete report. Please try again."
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -95,13 +119,14 @@ const ReportDetail = () => {
         <div className="card shadow mb-4">
           <img
             src={report.imageUrl || "https://via.placeholder.com/400"}
-            alt={report.userName || "Report"}
+            alt={report.userFullName || report.userName || "Report"}
             className="card-img-top"
             style={{ maxHeight: "400px", objectFit: "cover" }}
           />
           <div className="card-body">
             <h4 className="card-title">
-              Report by: {report.userName || "Unnamed Report"}
+              Report by:{" "}
+              {report.userFullName || report.userName || "Unnamed Report"}
             </h4>
             <p className="card-text">
               {report.description || "No description available"}
@@ -118,6 +143,13 @@ const ReportDetail = () => {
             <p>
               <strong>Remarks:</strong> {report.remarks || "No remarks"}
             </p>
+            <button
+              className="btn btn-danger mt-2"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Report"}
+            </button>
           </div>
         </div>
         <div className="card shadow">

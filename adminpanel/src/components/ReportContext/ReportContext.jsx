@@ -6,11 +6,18 @@ export const ReportContext = createContext();
 export const ReportProvider = ({ children }) => {
   const [reportList, setReportList] = useState([]);
   const [error, setError] = useState(null);
+  const [sortOrder, setSortOrder] = useState("desc"); // Default: latest first
 
-  const fetchReports = async () => {
+  const fetchReports = async (filters = {}) => {
     try {
+      const { status, category, location, sort = sortOrder } = filters;
+      const token = localStorage.getItem("token");
       const response = await axios.get(
-        "http://localhost:8081/api/admin/complaints"
+        "http://localhost:8081/api/admin/complaints",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { status, category, location, sort },
+        }
       );
       if (!Array.isArray(response.data)) {
         throw new Error(
@@ -31,14 +38,16 @@ export const ReportProvider = ({ children }) => {
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [sortOrder]);
 
-  const refreshReports = () => {
-    fetchReports();
+  const refreshReports = (filters = {}) => {
+    fetchReports(filters);
   };
 
   return (
-    <ReportContext.Provider value={{ reportList, refreshReports, error }}>
+    <ReportContext.Provider
+      value={{ reportList, refreshReports, error, sortOrder, setSortOrder }}
+    >
       {children}
     </ReportContext.Provider>
   );

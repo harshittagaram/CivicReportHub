@@ -1,9 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import ReportDisplay from "../ReportDisplay/ReportDisplay";
+import { ReportContext } from "../ReportContext/ReportContext";
 import { categories } from "../../assets/assets";
-import "./ReportCategoryFilter.css"; // optional custom CSS file
+import "./ReportCategoryFilter.css";
 
 const ReportCategoryFilter = () => {
+  const { sortOrder, setSortOrder, refreshReports } = useContext(ReportContext);
   const [category, setCategory] = useState("All");
   const menuRef = useRef(null);
 
@@ -19,10 +21,25 @@ const ReportCategoryFilter = () => {
     }
   };
 
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+    refreshReports({ category: category === "All" ? null : category });
+  };
+
   return (
     <div className="report-category-filter position-relative container mt-4">
       <h3 className="d-flex align-items-center justify-content-between mb-3">
-        Explore Reports by Category
+        <span className="d-flex align-items-center">
+          Explore Reports by Category
+          <select
+            className="form-select ms-3 w-auto"
+            value={sortOrder}
+            onChange={handleSortChange}
+          >
+            <option value="desc">Latest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+        </span>
         <div className="d-flex">
           <i
             className="bi bi-arrow-left-circle scroll-icon me-2"

@@ -12,7 +12,7 @@ const ReportDisplay = ({ category, searchText, status }) => {
 
     const matchesCategory = category === "All" || report.category === category;
     const matchesStatus = !status || report.status === status;
-    const matchesSearch = (report.userName || "")
+    const matchesSearch = (report.userFullName || report.userName || "")
       .toLowerCase()
       .includes(searchText.toLowerCase());
 
@@ -36,6 +36,7 @@ const ReportDisplay = ({ category, searchText, status }) => {
               key={report.id}
               id={report.id}
               userName={report.userName}
+              userFullName={report.userFullName}
               description={report.description}
               imageUrl={report.imageUrl}
               location={report.location}

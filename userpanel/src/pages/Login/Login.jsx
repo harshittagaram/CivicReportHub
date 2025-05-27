@@ -1,29 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Navbar from "../../components/Navbar/Navbar";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("Sending login request with:", { email, password });
       const response = await axios.post(
         "http://localhost:8081/api/user/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
+      console.log("Login API Response:", response.data);
       const { token } = response.data;
-      localStorage.setItem("token", token); // Store token
-      navigate("/"); // Redirect to Home after login
+      if (!token) {
+        throw new Error("No token received from API");
+      }
+      console.log("Calling login with token:", token);
+      login(token);
+      console.log(
+        "Login function called, checking localStorage:",
+        localStorage.getItem("token")
+      );
     } catch (err) {
-      setError(err.response?.data?.token || "Login failed");
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Login failed";
+      setError(errorMessage);
+      console.error("Login error:", {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
     }
   };
 

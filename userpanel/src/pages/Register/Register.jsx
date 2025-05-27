@@ -1,31 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../../context/AuthContext";
 
 const Register = () => {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        name,
+        email,
+        password,
+        role: "USER",
+      };
+      console.log("Sending register request with:", payload);
       const response = await axios.post(
         "http://localhost:8081/api/user/register",
-        {
-          name,
-          email,
-          password,
-        }
+        payload,
+        { headers: { "Content-Type": "application/json" } }
       );
+      console.log("Register API Response:", response.data);
       const { token } = response.data;
-      localStorage.setItem("token", token); // Store token
-      navigate("/login"); // Redirect to login after registration
+      if (!token) {
+        throw new Error("No token received from API");
+      }
+      console.log("Register Token received:", token);
+      navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.token || "Registration failed");
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Registration failed";
+      setError(errorMessage);
+      console.error("Register error:", {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
     }
   };
 

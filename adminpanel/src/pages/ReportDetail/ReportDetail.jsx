@@ -25,14 +25,17 @@ const ReportDetail = () => {
           `http://localhost:8081/api/admin/complaints/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log("ReportDetail API Response:", response.data);
+        console.log(
+          "ReportDetail API Response:",
+          JSON.stringify(response.data, null, 2)
+        ); // Detailed logging
         setReport(response.data);
         setStatus(response.data.status || "Pending");
         setFeedback(response.data.remarks || "");
       } catch (error) {
         console.error(
           "Error fetching report details:",
-          error.response || error
+          error.response?.data || error
         );
         setError("Failed to load report details. Please try again.");
         toast.error("Error fetching report details");
@@ -133,6 +136,27 @@ const ReportDetail = () => {
             </p>
             <p>
               <strong>Location:</strong> {report.location || "Unknown"}
+            </p>
+            <p>
+              <strong>Coordinates:</strong>{" "}
+              {report.latitude != null && report.longitude != null
+                ? `Lat: ${report.latitude}, Lon: ${report.longitude}`
+                : "Not provided"}
+            </p>
+            <p>
+              <strong>Address:</strong>{" "}
+              {report.address
+                ? [
+                    report.address.doorNo,
+                    report.address.street,
+                    report.address.villageOrTown,
+                    report.address.district,
+                    report.address.state,
+                    report.address.pincode,
+                  ]
+                    .filter((field) => field && field.trim() !== "")
+                    .join(", ") || "No address details provided"
+                : "No address object provided"}
             </p>
             <p>
               <strong>Category:</strong> {report.category || "Uncategorized"}

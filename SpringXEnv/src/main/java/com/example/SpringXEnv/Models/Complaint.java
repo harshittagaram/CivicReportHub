@@ -1,6 +1,5 @@
 package com.example.SpringXEnv.Models;
 
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,12 +18,28 @@ public class Complaint {
     private String description;
     private String category;
     private String location;
+    private Double latitude;
+    private Double longitude;
+    private Address address;
     private String imageUrl;
 
     private String status = "Pending"; // default
     private String remarks = "";
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Nested Address class
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Address {
+        private String doorNo;
+        private String street;
+        private String villageOrTown;
+        private String district;
+        private String state;
+        private String pincode;
+    }
 
     // Getters and Setters
     public String getId() {
@@ -67,6 +82,30 @@ public class Complaint {
         this.location = location;
     }
 
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -99,4 +138,3 @@ public class Complaint {
         this.createdAt = createdAt;
     }
 }
-

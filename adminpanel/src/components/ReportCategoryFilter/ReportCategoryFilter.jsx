@@ -71,12 +71,9 @@ const ReportCategoryFilter = () => {
             <img
               src={item.icon}
               alt={item.category}
-              className={`rounded-circle ${
-                item.category === category ? "active" : ""
-              }`}
-              height={150}
-              width={150}
+              className={`${item.category === category ? "active" : ""}`}
             />
+
             <p className="mt-2 fw-bold">{item.category}</p>
           </div>
         ))}

@@ -18,6 +18,7 @@ const ReportNow = () => {
     state: "",
     pincode: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const userName = "Anonymous User"; // Replace with actual user name if needed
   const { register, handleSubmit, reset } = useForm();
@@ -83,6 +84,7 @@ const ReportNow = () => {
 
   // Handle form submission
   const onSubmit = async (data) => {
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("description", data.description);
@@ -113,7 +115,7 @@ const ReportNow = () => {
         }
       );
       console.log("Backend response:", response.data);
-      toast.success("Complaint submitted successfully!");
+      toast.success("Environmental issue reported successfully! Your complaint has been registered.");
 
       // Reset form and state
       reset();
@@ -133,81 +135,104 @@ const ReportNow = () => {
         "Error submitting complaint:",
         error.response?.data || error
       );
-      toast.error("Failed to submit complaint. Try again.");
+      toast.error("Failed to submit complaint. Please try again or contact support.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Report an Issue</h2>
-        <div className="bg-white rounded-lg shadow p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+      <div className="container" style={{ paddingTop: "100px", paddingBottom: "50px" }}>
+        <div className="form-container">
+          <div className="form-header">
+            <i className="fas fa-exclamation-triangle fa-3x text-primary mb-3"></i>
+            <h2>Report Environmental Issue</h2>
+            <p>Help us maintain a clean and healthy environment by reporting environmental concerns</p>
+          </div>
+          
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="form-group">
+              <label htmlFor="description" className="form-label">
+                <i className="fas fa-file-alt me-1"></i>
+                Issue Description
               </label>
               <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="form-control"
                 rows="4"
-                placeholder="Describe the issue in detail"
+                placeholder="Please describe the environmental issue in detail. Include specific observations, severity, and any immediate concerns."
                 {...register("description", { required: true })}
               />
             </div>
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Category
+            <div className="form-group">
+              <label htmlFor="category" className="form-label">
+                <i className="fas fa-tags me-1"></i>
+                Issue Category
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="form-control form-select"
                 {...register("category", { required: true })}
               >
-                <option value="">Select Category</option>
-                <option value="Garbage">Garbage</option>
-                <option value="Drainage">Drainage</option>
+                <option value="">Select the type of environmental issue</option>
+                <option value="Garbage">Garbage Accumulation</option>
+                <option value="Drainage">Drainage Issues</option>
                 <option value="WaterPollution">Water Pollution</option>
                 <option value="AirPollution">Air Pollution</option>
                 <option value="Road Damage">Road Damage</option>
+                <option value="Deforestation">Deforestation</option>
+                <option value="Noise Pollution">Noise Pollution</option>
+                <option value="Other">Other Environmental Issue</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  value={location}
-                  readOnly
-                  placeholder="Your location will appear here"
-                />
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  onClick={handleLocationDetection}
-                >
-                  Detect Location
-                </button>
+            <div className="form-group">
+              <label className="form-label">
+                <i className="fas fa-map-marker-alt me-1"></i>
+                Location Information
+              </label>
+              <div className="row">
+                <div className="col-md-8">
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={location}
+                    readOnly
+                    placeholder="Location coordinates will appear here after detection"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary w-100"
+                    onClick={handleLocationDetection}
+                  >
+                    <i className="fas fa-crosshairs me-2"></i>
+                    Detect Location
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Address Details</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="form-group">
+              <label className="form-label">
+                <i className="fas fa-home me-1"></i>
+                Detailed Address
+              </label>
+              <div className="row">
                 {[
-                  { name: "doorNo", placeholder: "Door No" },
-                  { name: "street", placeholder: "Street" },
-                  { name: "villageOrTown", placeholder: "Village/Town" },
-                  { name: "district", placeholder: "District" },
-                  { name: "state", placeholder: "State" },
-                  { name: "pincode", placeholder: "Pincode" },
+                  { name: "doorNo", placeholder: "Door/Flat Number", col: "col-md-3" },
+                  { name: "street", placeholder: "Street Name", col: "col-md-9" },
+                  { name: "villageOrTown", placeholder: "Village/Town/City", col: "col-md-6" },
+                  { name: "district", placeholder: "District", col: "col-md-6" },
+                  { name: "state", placeholder: "State", col: "col-md-6" },
+                  { name: "pincode", placeholder: "Pincode", col: "col-md-6" },
                 ].map((field) => (
-                  <div key={field.name}>
+                  <div key={field.name} className={field.col}>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="form-control"
                       name={field.name}
                       placeholder={field.placeholder}
                       value={address[field.name]}
@@ -218,22 +243,46 @@ const ReportNow = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+            <div className="form-group">
+              <label className="form-label">
+                <i className="fas fa-camera me-1"></i>
+                Upload Evidence (Optional)
+              </label>
               <input
                 type="file"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="form-control"
                 {...register("image")}
                 accept="image/*"
+                placeholder="Upload photos or images of the issue"
               />
+              <small className="text-muted">
+                Supported formats: JPG, PNG, GIF. Maximum size: 5MB
+              </small>
             </div>
 
-            <div className="pt-4">
+            <div className="alert alert-info">
+              <i className="fas fa-info-circle me-2"></i>
+              <strong>Important:</strong> Your report will be reviewed by local authorities. 
+              You can track the status of your complaint in the "My Complaints" section.
+            </div>
+
+            <div className="d-grid gap-2">
               <button
                 type="submit"
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                className="btn btn-primary"
+                disabled={isLoading}
               >
-                Submit Report
+                {isLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin me-2"></i>
+                    Submitting Report...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-paper-plane me-2"></i>
+                    Submit Environmental Report
+                  </>
+                )}
               </button>
             </div>
           </form>

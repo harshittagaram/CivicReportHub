@@ -1,0 +1,4 @@
+package com.example.SpringXEnv.io;
+
+public class UserDTO {
+}

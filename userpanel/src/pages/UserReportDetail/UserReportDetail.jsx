@@ -14,17 +14,14 @@ const UserReportDetail = () => {
 
   const fetchReportDetails = async () => {
     try {
-      console.log("Fetching user report with ID:", id);
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `http://localhost:8081/api/user/complaints/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("UserReportDetail API Response:", response.data);
       setReport(response.data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching report details:", error.response || error);
       setError("Failed to load report details.");
       toast.error("Failed to load report details");
     } finally {
@@ -41,7 +38,11 @@ const UserReportDetail = () => {
   }, [id]);
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this environmental complaint? This action cannot be undone."))
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this environmental complaint?"
+      )
+    )
       return;
     setIsDeleting(true);
     try {
@@ -49,91 +50,92 @@ const UserReportDetail = () => {
       await axios.delete(`http://localhost:8081/api/user/complaints/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Environmental complaint deleted successfully!");
+      toast.success("Complaint deleted successfully!");
       navigate("/my-reports");
     } catch (error) {
-      console.error("Error deleting complaint:", error.response?.data || error);
-      toast.error(
-        error.response?.data?.message || "Failed to delete complaint."
-      );
+      toast.error("Failed to delete complaint.");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "Pending":
-        return <span className="badge badge-warning">Pending</span>;
-      case "In Progress":
-        return <span className="badge badge-info">In Progress</span>;
-      case "Resolved":
-        return <span className="badge badge-success">Resolved</span>;
-      default:
-        return <span className="badge badge-warning">Pending</span>;
+  const handleAcceptResolution = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:8081/api/user/accept-resolution/${id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Resolution accepted!");
+      fetchReportDetails();
+    } catch (err) {
+      toast.error("Failed to accept resolution.");
     }
   };
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case "Garbage":
-        return "fas fa-trash";
-      case "Drainage":
-        return "fas fa-water";
-      case "WaterPollution":
-        return "fas fa-tint";
-      case "AirPollution":
-        return "fas fa-wind";
-      case "Road Damage":
-        return "fas fa-road";
+  const getStatusBadge = (status, userAccepted) => {
+    const base = "inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm";
+    if (status === "Resolved" && userAccepted === false) {
+      return (
+        <span className={`${base} bg-yellow-100 text-yellow-800 border border-yellow-300 animate-pulse`}>
+          Awaiting Confirmation
+        </span>
+      );
+    }
+    switch (status) {
+      case "Pending":
+        return (
+          <span className={`${base} bg-yellow-100 text-yellow-800 border border-yellow-300`}>
+            Pending
+          </span>
+        );
+      case "In Progress":
+        return (
+          <span className={`${base} bg-blue-100 text-blue-800 border border-blue-300`}>
+            In Progress
+          </span>
+        );
+      case "Resolved":
+        return (
+          <span className={`${base} bg-green-100 text-green-800 border border-green-300`}>
+            Resolved
+          </span>
+        );
       default:
-        return "fas fa-exclamation-triangle";
+        return (
+          <span className={`${base} bg-gray-100 text-gray-800 border border-gray-300`}>Unknown</span>
+        );
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", paddingTop: "80px" }}>
+        <div className="flex justify-center items-center h-screen">
           <div className="text-center">
-            <i className="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
-            <p className="text-[var(--text-secondary)]">Loading complaint details...</p>
+            <i className="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+            <p className="text-gray-600">Loading complaint details...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !report) {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", paddingTop: "80px" }}>
+        <div className="flex justify-center items-center h-screen">
           <div className="text-center">
-            <i className="fas fa-exclamation-triangle fa-3x text-error mb-3"></i>
-            <p className="text-[var(--text-secondary)]">{error}</p>
-            <Link to="/my-reports" className="btn btn-primary mt-3">
-              <i className="fas fa-arrow-left me-2"></i>
-              Back to My Complaints
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!report) {
-    return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <Navbar />
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", paddingTop: "80px" }}>
-          <div className="text-center">
-            <i className="fas fa-file-alt fa-3x text-[var(--text-muted)] mb-3"></i>
-            <p className="text-[var(--text-secondary)]">Complaint not found</p>
-            <Link to="/my-reports" className="btn btn-primary mt-3">
-              <i className="fas fa-arrow-left me-2"></i>
-              Back to My Complaints
+            <i className="fas fa-exclamation-triangle text-3xl text-red-500 mb-4"></i>
+            <p className="text-gray-600">{error || "Complaint not found."}</p>
+            <Link
+              to="/my-reports"
+              className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              <i className="fas fa-arrow-left mr-2"></i> Back to My Complaints
             </Link>
           </div>
         </div>
@@ -142,195 +144,177 @@ const UserReportDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container" style={{ paddingTop: "100px", paddingBottom: "50px" }}>
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2>
-              <i className="fas fa-file-alt me-2 text-primary"></i>
-              Complaint Details
-            </h2>
-            <p className="text-[var(--text-secondary)] mb-0">
-              Comprehensive view of your environmental complaint
-            </p>
-          </div>
-          <Link to="/my-reports" className="btn btn-outline">
-            <i className="fas fa-arrow-left me-2"></i>
-            Back to Complaints
-          </Link>
-        </div>
-
-        <div className="row">
-          {/* Main Content */}
-          <div className="col-lg-8">
-            <div className="card mb-4">
+      <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Main content */}
+          <div className="md:w-2/3 space-y-6">
+            <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
               {report.imageUrl && (
-                <div className="position-relative">
+                <div className="relative">
                   <img
                     src={report.imageUrl}
-                    alt="Environmental Issue Evidence"
-                    className="card-img-top"
-                    style={{ height: "300px", objectFit: "cover" }}
+                    alt="Issue Evidence"
+                    className="w-full h-64 object-cover rounded-t-2xl"
                   />
-                  <div className="position-absolute top-0 end-0 m-3">
-                    {getStatusBadge(report.status)}
+                  <div className="absolute top-3 right-3">
+                    {getStatusBadge(report.status, report.userAccepted)}
                   </div>
                 </div>
               )}
-              
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-start mb-4">
+              <div className="p-8 space-y-6">
+                <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="card-title mb-2">
-                      <i className={`${getCategoryIcon(report.category)} me-2 text-primary`}></i>
+                    <h3 className="text-xl font-semibold text-blue-700">
+                      <i
+                        className={`mr-2 ${
+                          report.category && `fas fa-${report.category.toLowerCase()}`
+                        }`}
+                      ></i>
                       {report.category}
                     </h3>
-                    <small className="text-[var(--text-muted)]">
-                      <i className="fas fa-calendar me-1"></i>
-                      Reported on {new Date(report.createdAt).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </small>
+                    <p className="text-gray-500 text-sm">
+                      <i className="fas fa-calendar-alt mr-1"></i>
+                      Reported on {new Date(report.createdAt).toLocaleString()}
+                    </p>
                   </div>
                   {!report.imageUrl && (
-                    <div>
-                      {getStatusBadge(report.status)}
-                    </div>
+                    <div>{getStatusBadge(report.status, report.userAccepted)}</div>
                   )}
                 </div>
 
-                <div className="mb-4">
-                  <h5 className="text-[var(--text-primary)] mb-2">
-                    <i className="fas fa-file-alt me-1"></i>
+                <div>
+                  <h4 className="text-lg font-medium text-gray-700 mb-1">
                     Issue Description
-                  </h5>
-                  <p className="text-[var(--text-secondary)]">
-                    {report.description || "No description provided"}
+                  </h4>
+                  <p className="text-gray-600">
+                    {report.description || "No description provided."}
                   </p>
                 </div>
 
-                <div className="mb-4">
-                  <h5 className="text-[var(--text-primary)] mb-2">
-                    <i className="fas fa-map-marker-alt me-1"></i>
-                    Location Details
-                  </h5>
-                  <p className="text-[var(--text-secondary)]">
-                    {report.location || "Location not specified"}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-700 mb-1">
+                    Location
+                  </h4>
+                  <p className="text-gray-600">
+                    {report.location || "Location not specified."}
                   </p>
-                  {report.latitude && report.longitude && (
-                    <small className="text-[var(--text-muted)]">
-                      Coordinates: {report.latitude}, {report.longitude}
-                    </small>
-                  )}
+                  <p className="text-sm text-gray-500">
+                    {report.latitude && report.longitude && `Coordinates: ${report.latitude}, ${report.longitude}`}
+                  </p>
                 </div>
 
                 {report.remarks && (
-                  <div className="mb-4">
-                    <h5 className="text-[var(--text-primary)] mb-2">
-                      <i className="fas fa-comment me-1"></i>
+                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                    <h4 className="text-blue-700 font-medium mb-1">
                       Authority Remarks
-                    </h5>
-                    <div className="alert alert-info">
-                      <i className="fas fa-info-circle me-2"></i>
-                      {report.remarks}
-                    </div>
+                    </h4>
+                    <p className="text-blue-700">{report.remarks}</p>
                   </div>
+                )}
+
+                {report.status === "Resolved" && report.userAccepted === false && (
+                  <button
+                    className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 shadow transition"
+                    onClick={handleAcceptResolution}
+                  >
+                    <i className="fas fa-check-circle mr-2"></i>
+                    Accept Resolution
+                  </button>
                 )}
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
-          <div className="col-lg-4">
-            {/* Status Card */}
-            <div className="card mb-4">
-              <div className="card-header">
-                <h5 className="mb-0">
-                  <i className="fas fa-info-circle me-2"></i>
-                  Complaint Status
-                </h5>
+          <div className="md:w-1/3 space-y-6">
+            <div className="bg-white shadow-lg rounded-2xl p-6">
+              <h4 className="text-lg font-semibold mb-3 flex items-center">
+                <i className="fas fa-info-circle mr-2"></i> Complaint Status
+              </h4>
+              <div className="text-center mb-3">
+                {getStatusBadge(report.status, report.userAccepted)}
               </div>
-              <div className="card-body">
-                <div className="text-center mb-3">
-                  {getStatusBadge(report.status)}
-                </div>
-                <div className="small text-[var(--text-secondary)]">
-                  <p className="mb-2">
-                    <i className="fas fa-clock me-1"></i>
-                    <strong>Created:</strong> {new Date(report.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="mb-2">
-                    <i className="fas fa-edit me-1"></i>
-                    <strong>Last Updated:</strong> {new Date(report.updatedAt || report.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="mb-0">
-                    <i className="fas fa-user me-1"></i>
-                    <strong>Reported by:</strong> {report.userFullName || report.userName || "Anonymous"}
-                  </p>
-                </div>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>
+                  <strong>Created:</strong> {new Date(report.createdAt).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Updated:</strong> {new Date(report.updatedAt || report.createdAt).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Reported by:</strong> {report.userFullName || report.userName || "Anonymous"}
+                </p>
               </div>
             </div>
 
-            {/* Address Details */}
             {report.address && (
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="mb-0">
-                    <i className="fas fa-home me-2"></i>
-                    Address Details
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <div className="small text-[var(--text-secondary)]">
-                    {report.address.doorNo && <p className="mb-1"><strong>Door No:</strong> {report.address.doorNo}</p>}
-                    {report.address.street && <p className="mb-1"><strong>Street:</strong> {report.address.street}</p>}
-                    {report.address.villageOrTown && <p className="mb-1"><strong>Village/Town:</strong> {report.address.villageOrTown}</p>}
-                    {report.address.district && <p className="mb-1"><strong>District:</strong> {report.address.district}</p>}
-                    {report.address.state && <p className="mb-1"><strong>State:</strong> {report.address.state}</p>}
-                    {report.address.pincode && <p className="mb-0"><strong>Pincode:</strong> {report.address.pincode}</p>}
-                  </div>
+              <div className="bg-white shadow-lg rounded-2xl p-6">
+                <h4 className="text-lg font-semibold mb-3 flex items-center">
+                  <i className="fas fa-home mr-2"></i> Address Details
+                </h4>
+                <div className="text-sm text-gray-600 space-y-1">
+                  {report.address.doorNo && (
+                    <p>
+                      <strong>Door No:</strong> {report.address.doorNo}
+                    </p>
+                  )}
+                  {report.address.street && (
+                    <p>
+                      <strong>Street:</strong> {report.address.street}
+                    </p>
+                  )}
+                  {report.address.villageOrTown && (
+                    <p>
+                      <strong>Town:</strong> {report.address.villageOrTown}
+                    </p>
+                  )}
+                  {report.address.district && (
+                    <p>
+                      <strong>District:</strong> {report.address.district}
+                    </p>
+                  )}
+                  {report.address.state && (
+                    <p>
+                      <strong>State:</strong> {report.address.state}
+                    </p>
+                  )}
+                  {report.address.pincode && (
+                    <p>
+                      <strong>Pincode:</strong> {report.address.pincode}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Actions */}
-            <div className="card">
-              <div className="card-header">
-                <h5 className="mb-0">
-                  <i className="fas fa-cogs me-2"></i>
-                  Actions
-                </h5>
-              </div>
-              <div className="card-body">
-                <div className="d-grid gap-2">
-                  <Link to="/report" className="btn btn-primary">
-                    <i className="fas fa-plus me-2"></i>
-                    Report New Issue
-                  </Link>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="btn btn-danger"
-                  >
-                    {isDeleting ? (
-                      <>
-                        <i className="fas fa-spinner fa-spin me-2"></i>
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-trash me-2"></i>
-                        Delete Complaint
-                      </>
-                    )}
-                  </button>
-                </div>
+            <div className="bg-white shadow-lg rounded-2xl p-6">
+              <h4 className="text-lg font-semibold mb-3 flex items-center">
+                <i className="fas fa-cogs mr-2"></i> Actions
+              </h4>
+              <div className="flex flex-col gap-3">
+                <Link
+                  to="/report"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg shadow"
+                >
+                  <i className="fas fa-plus mr-2"></i> Report New Issue
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow"
+                >
+                  {isDeleting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin mr-2"></i> Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-trash mr-2"></i> Delete Complaint
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

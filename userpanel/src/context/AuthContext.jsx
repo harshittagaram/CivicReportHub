@@ -6,25 +6,27 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const token = localStorage.getItem("token");
-    console.log(
-      "Initial token check:",
-      token ? `Token found: ${token}` : "No token"
-    );
-    return !!token;
-  });
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
+  const [loading, setLoading] = useState(false); // Start with false
 
   const fetchUser = async (token) => {
     try {
-      const response = await axios.get(
-        "http://localhost:8081/api/user/me",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get("http://localhost:8081/api/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setUser(response.data);
+      localStorage.setItem("user", JSON.stringify(response.data)); // Cache user
+      console.log("Token validation successful:", response.data);
     } catch (err) {
+      console.error("Token validation failed:", err);
       setUser(null);
+      setToken("");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
     }
   };
 
@@ -32,82 +34,68 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Storing token in localStorage:", token);
       localStorage.setItem("token", token);
-      console.log("Token stored, verifying:", localStorage.getItem("token"));
-      setIsAuthenticated(true);
-      console.log("isAuthenticated set to true after login");
+      setToken(token);
+      setLoading(true); // Set loading during login
       await fetchUser(token);
       navigate("/");
     } catch (error) {
-      console.error("Failed to store token in localStorage:", error);
-      setIsAuthenticated(false);
+      console.error("Failed to store token or fetch user:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setToken("");
       setUser(null);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = () => {
     console.log("Removing token from localStorage");
     localStorage.removeItem("token");
-    setIsAuthenticated(false);
-    console.log("isAuthenticated set to false after logout");
+    localStorage.removeItem("user");
+    setToken("");
     setUser(null);
     navigate("/login");
   };
 
   useEffect(() => {
     const validateToken = async () => {
-      const token = localStorage.getItem("token");
-      console.log("useEffect: Checking token:", token || "No token");
-      if (token) {
-        try {
+      const storedToken = localStorage.getItem("token");
+      console.log("useEffect: Checking token:", storedToken || "No token");
+
+      if (storedToken) {
+        if (localStorage.getItem("user")) {
+          // Use cached user if available
+          console.log("Using cached user from localStorage");
+          setToken(storedToken);
+        } else {
+          // Fetch user if no cached data
           console.log(
             "Validating token with API: http://localhost:8081/api/user/me"
           );
-          console.log("Authorization header:", `Bearer ${token}`);
-          await fetchUser(token);
-          console.log("Token validation successful:", user);
-          setIsAuthenticated(true);
-          console.log("isAuthenticated set to true after validation");
-        } catch (err) {
-          console.error("Token validation failed:", {
-            message: err.message,
-            status: err.response?.status,
-            data: err.response?.data,
-            headers: err.response?.headers,
-          });
-          console.log("Removing token and setting isAuthenticated to false");
-          localStorage.removeItem("token");
-          setIsAuthenticated(false);
-          setUser(null);
-          navigate("/login");
+          await fetchUser(storedToken);
         }
       } else {
-        console.log("No token found, setting isAuthenticated to false");
-        setIsAuthenticated(false);
+        console.log("No token found, setting user to null");
         setUser(null);
       }
+      setLoading(false);
     };
 
     validateToken();
-
-    const handleStorageChange = (e) => {
-      if (e.key === "token") {
-        console.log("Storage event: token changed to", e.newValue);
-        setIsAuthenticated(!!e.newValue);
-        console.log("isAuthenticated updated to:", !!e.newValue);
-        if (e.newValue) {
-          fetchUser(e.newValue);
-        } else {
-          setUser(null);
-        }
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, [navigate]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!token && !!user,
+        user,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

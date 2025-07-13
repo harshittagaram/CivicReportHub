@@ -9,6 +9,8 @@ import ResolvedReports from "./pages/ResolvedReports/ResolvedReports";
 import ReportDetail from "./pages/ReportDetail/ReportDetail";
 import PendingReports from "./pages/PendingReports/PendingReports";
 import InProgressReports from "./pages/InProgessReports/InProgressReports";
+import AwaitingConfirmation from "./pages/AwaitingConfirmation/AwaitingConfirmation";
+
 function App() {
   return (
     <ReportProvider>
@@ -23,6 +25,8 @@ function App() {
           <Route path="/in-progress-reports" element={<InProgressReports />} />
           <Route path="/resolved-reports" element={<ResolvedReports />} />
           <Route path="/pending-reports" element={<PendingReports />} />
+          <Route path="/awaiting-confirmation" element={<AwaitingConfirmation />} />
+
         </Routes>
       </div>
     </ReportProvider>

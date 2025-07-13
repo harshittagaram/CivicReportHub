@@ -1,117 +1,140 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const { isAuthenticated, user, logout, loading } = useContext(AuthContext);
   const [scrolled, setScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const location = useLocation();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Show/hide navbar based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px - hide navbar
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up - show navbar
-        setIsVisible(true);
-      }
-      
-      // Update scrolled state for background
-      setScrolled(currentScrollY > 50);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+
+  if (loading) return <div className="text-center py-3">Loading Navbar...</div>;
 
   return (
-    <nav 
-      className={`navbar navbar-expand-lg fixed-top ${scrolled ? "scrolled" : ""}`}
-      style={{
-        transform: isVisible ? 'translateY(0)' : 'translateY(-100%)',
-        transition: 'transform 0.3s ease-in-out',
-        zIndex: 1050
-      }}
+    <nav
+      className={`w-full sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white shadow-lg text-blue-700"
+          : "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700"
+      }`}
     >
-      <div className="container">
-        <Link className="navbar-brand" to="/">
-          <i className="fas fa-shield-alt"></i>
-          <span>EcoAware Portal</span>
-        </Link>
-        
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
+      <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="font-bold text-lg tracking-wide flex items-center gap-2"
         >
-          <span className="navbar-toggler-icon"></span>
+          <i className="fas fa-globe text-blue-700 text-xl"></i>
+          <span className="text-blue-700">EcoAware Portal</span>
+        </Link>
+
+        {/* Mobile Button */}
+        <button
+          onClick={toggleMenu}
+          className="lg:hidden px-2 py-1 bg-blue-700 text-white rounded-md focus:outline-none hover:bg-blue-800 text-sm"
+        >
+          <i className="fas fa-bars"></i>
         </button>
-        
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto align-items-center" style={{ display: 'flex', flexWrap: 'nowrap' }}>
-            {!isAuthenticated ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    <i className="fas fa-sign-in-alt me-1"></i>
-                    Citizen Login
+
+        {/* Navigation Links */}
+        <div
+          className={`${
+            isMenuOpen ? "block" : "hidden"
+          } lg:flex lg:items-center lg:space-x-2`}
+        >
+          <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-2">
+            
+            <Link
+              to="/report"
+              className="px-3 py-1 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition duration-200 no-underline"
+            >
+              Report Issue
+            </Link>
+            {isAuthenticated && (
+              <Link
+                to="/my-reports"
+                className="px-3 py-1 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition duration-200 no-underline"
+              >
+                My Complaints
+              </Link>
+            )}
+
+            {/* Auth Buttons / Dropdown */}
+            <div className="mt-2 lg:mt-0 flex items-center gap-2 relative">
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to="/login"
+                    className="px-3 py-1 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition duration-200 no-underline"
+                  >
+                    Login
                   </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/register">
-                    <i className="fas fa-user-plus me-1"></i>
+                  <Link
+                    to="/register"
+                    className="px-3 py-1 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition duration-200 no-underline"
+                  >
                     Register
                   </Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/report">
-                    <i className="fas fa-exclamation-triangle me-1"></i>
-                    Report Issue
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/my-reports">
-                    <i className="fas fa-list-alt me-1"></i>
-                    My Complaints
-                  </Link>
-                </li>
-                {user && (
-                  <li className="nav-item d-flex align-items-center px-2" style={{color: '#fff', fontWeight: 500}}>
-                    <i className="fas fa-user-circle me-1"></i>
-                    {user.name || user.email || "User"}
-                  </li>
-                )}
-                <li className="nav-item" style={{minWidth: 110}}>
+                </>
+              ) : (
+                <div className="relative" ref={dropdownRef}>
                   <button
-                    className="btn btn-outline ms-2"
-                    onClick={logout}
-                    style={{ 
-                      borderColor: 'rgba(255,255,255,0.5)', 
-                      color: 'white',
-                      background: 'transparent',
-                      minWidth: 100
-                    }}
+                    onClick={toggleDropdown}
+                    className="px-3 py-1 bg-blue-700 text-white rounded-md flex items-center gap-1 hover:bg-blue-800 transition duration-200 no-underline"
                   >
-                    <i className="fas fa-sign-out-alt me-1"></i>
-                    Logout
+                    {user?.name || "Harshit"}
+                    <i className="fas fa-chevron-down text-xs"></i>
                   </button>
-                </li>
-              </>
-            )}
-          </ul>
+
+                  {isDropdownOpen && (
+                    <ul className="absolute right-0 mt-1 w-36 bg-white text-blue-700 rounded-md shadow-lg z-50">
+                      <li>
+                        <Link
+                          to="/my-reports"
+                          className="block px-3 py-1 hover:bg-gray-100 rounded-t-md no-underline"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          My Complaints
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            logout();
+                            setIsDropdownOpen(false);
+                          }}
+                          className="block w-full text-left px-3 py-1 hover:bg-gray-100 rounded-b-md"
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </nav>

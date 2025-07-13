@@ -4,7 +4,6 @@ import Navbar from "../../components/Navbar/Navbar";
 import { reverseGeocode } from "../../services/locationService";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const ReportNow = () => {
   const [location, setLocation] = useState("");
@@ -20,11 +19,10 @@ const ReportNow = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const userName = "Anonymous User"; // Replace with actual user name if needed
+  const userName = "Anonymous User";
   const { register, handleSubmit, reset } = useForm();
   const token = localStorage.getItem("token");
 
-  // Detect location using browser geolocation API
   const handleLocationDetection = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -37,7 +35,7 @@ const ReportNow = () => {
 
           try {
             const geocodeData = await reverseGeocode(lat, lon);
-            if (geocodeData && geocodeData.address) {
+            if (geocodeData?.address) {
               setLocation(
                 geocodeData.display_name || `Lat: ${lat}, Lon: ${lon}`
               );
@@ -52,37 +50,23 @@ const ReportNow = () => {
               });
             } else {
               setLocation(`Lat: ${lat}, Lon: ${lon}`);
-              setAddress({
-                doorNo: "",
-                street: "",
-                villageOrTown: "",
-                district: "",
-                state: "",
-                pincode: "",
-              });
             }
           } catch (error) {
-            console.error("Error in reverseGeocode:", error);
             toast.error("Failed to fetch address. Enter manually.");
           }
         },
-        (error) => {
-          console.error("Geolocation error:", error);
-          toast.error("Location detection failed! Enter manually.");
-        }
+        () => toast.error("Location detection failed! Enter manually.")
       );
     } else {
       toast.error("Geolocation not supported in your browser.");
     }
   };
 
-  // Handle address input manually
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddress((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const onSubmit = async (data) => {
     setIsLoading(true);
     const formData = new FormData();
@@ -92,32 +76,21 @@ const ReportNow = () => {
     formData.append("location", location);
     formData.append("latitude", latitude);
     formData.append("longitude", longitude);
-    formData.append("address[doorNo]", address.doorNo);
-    formData.append("address[street]", address.street);
-    formData.append("address[villageOrTown]", address.villageOrTown);
-    formData.append("address[district]", address.district);
-    formData.append("address[state]", address.state);
-    formData.append("address[pincode]", address.pincode);
-
-    if (data.image && data.image[0]) {
+    Object.entries(address).forEach(([key, value]) => {
+      formData.append(`address[${key}]`, value);
+    });
+    if (data.image?.[0]) {
       formData.append("image", data.image[0]);
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8081/api/user/complaints",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Backend response:", response.data);
-      toast.success("Environmental issue reported successfully! Your complaint has been registered.");
-
-      // Reset form and state
+      await axios.post("http://localhost:8081/api/user/complaints", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("Environmental issue reported successfully!");
       reset();
       setLocation("");
       setLatitude("");
@@ -130,161 +103,144 @@ const ReportNow = () => {
         state: "",
         pincode: "",
       });
-    } catch (error) {
-      console.error(
-        "Error submitting complaint:",
-        error.response?.data || error
-      );
-      toast.error("Failed to submit complaint. Please try again or contact support.");
+    } catch {
+      toast.error("Failed to submit complaint. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="container" style={{ paddingTop: "100px", paddingBottom: "50px" }}>
-        <div className="form-container">
-          <div className="form-header">
-            <i className="fas fa-exclamation-triangle fa-3x text-primary mb-3"></i>
-            <h2>Report Environmental Issue</h2>
-            <p>Help us maintain a clean and healthy environment by reporting environmental concerns</p>
-          </div>
-          
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-              <label htmlFor="description" className="form-label">
-                <i className="fas fa-file-alt me-1"></i>
+      <div className="max-w-4xl mx-auto p-6 mt-24">
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-800 flex items-center">
+            <i className="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+            Report Environmental Issue
+          </h2>
+          <p className="mb-6 text-gray-600">
+            Help us maintain a clean and healthy environment by reporting
+            environmental concerns.
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Issue Description
               </label>
               <textarea
-                className="form-control"
-                rows="4"
-                placeholder="Please describe the environmental issue in detail. Include specific observations, severity, and any immediate concerns."
                 {...register("description", { required: true })}
-              />
+                rows={4}
+                className="w-full border border-gray-300 rounded p-2"
+                placeholder="Describe the environmental issue..."
+              ></textarea>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="category" className="form-label">
-                <i className="fas fa-tags me-1"></i>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Issue Category
               </label>
               <select
-                className="form-control form-select"
                 {...register("category", { required: true })}
+                className="w-full border border-gray-300 rounded p-2"
               >
-                <option value="">Select the type of environmental issue</option>
-                <option value="Garbage">Garbage Accumulation</option>
-                <option value="Drainage">Drainage Issues</option>
+                <option value="">Select issue type</option>
+                <option value="Garbage">Garbage</option>
+                <option value="Drainage">Drainage</option>
                 <option value="WaterPollution">Water Pollution</option>
                 <option value="AirPollution">Air Pollution</option>
                 <option value="Road Damage">Road Damage</option>
                 <option value="Deforestation">Deforestation</option>
                 <option value="Noise Pollution">Noise Pollution</option>
-                <option value="Other">Other Environmental Issue</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <i className="fas fa-map-marker-alt me-1"></i>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Location Information
               </label>
-              <div className="row">
-                <div className="col-md-8">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={location}
-                    readOnly
-                    placeholder="Location coordinates will appear here after detection"
-                  />
-                </div>
-                <div className="col-md-4">
-                  <button
-                    type="button"
-                    className="btn btn-secondary w-100"
-                    onClick={handleLocationDetection}
-                  >
-                    <i className="fas fa-crosshairs me-2"></i>
-                    Detect Location
-                  </button>
-                </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded p-2"
+                  value={location}
+                  readOnly
+                  placeholder="Detected location will appear here"
+                />
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={handleLocationDetection}
+                >
+                  <i className="fas fa-crosshairs mr-1"></i>
+                  Detect
+                </button>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <i className="fas fa-home me-1"></i>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Detailed Address
               </label>
-              <div className="row">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { name: "doorNo", placeholder: "Door/Flat Number", col: "col-md-3" },
-                  { name: "street", placeholder: "Street Name", col: "col-md-9" },
-                  { name: "villageOrTown", placeholder: "Village/Town/City", col: "col-md-6" },
-                  { name: "district", placeholder: "District", col: "col-md-6" },
-                  { name: "state", placeholder: "State", col: "col-md-6" },
-                  { name: "pincode", placeholder: "Pincode", col: "col-md-6" },
-                ].map((field) => (
-                  <div key={field.name} className={field.col}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      value={address[field.name]}
-                      onChange={handleAddressChange}
-                    />
-                  </div>
+                  { name: "doorNo", placeholder: "Door No" },
+                  { name: "street", placeholder: "Street" },
+                  { name: "villageOrTown", placeholder: "Village/Town" },
+                  { name: "district", placeholder: "District" },
+                  { name: "state", placeholder: "State" },
+                  { name: "pincode", placeholder: "Pincode" },
+                ].map(({ name, placeholder }) => (
+                  <input
+                    key={name}
+                    name={name}
+                    value={address[name]}
+                    onChange={handleAddressChange}
+                    placeholder={placeholder}
+                    className="w-full border border-gray-300 rounded p-2"
+                    type="text"
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <i className="fas fa-camera me-1"></i>
-                Upload Evidence (Optional)
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Upload Image (Optional)
               </label>
               <input
                 type="file"
-                className="form-control"
-                {...register("image")}
                 accept="image/*"
-                placeholder="Upload photos or images of the issue"
+                {...register("image")}
+                className="w-full"
               />
-              <small className="text-muted">
-                Supported formats: JPG, PNG, GIF. Maximum size: 5MB
-              </small>
+              <p className="text-sm text-gray-500">
+                Supported formats: JPG, PNG. Max size: 5MB
+              </p>
             </div>
 
-            <div className="alert alert-info">
-              <i className="fas fa-info-circle me-2"></i>
-              <strong>Important:</strong> Your report will be reviewed by local authorities. 
-              You can track the status of your complaint in the "My Complaints" section.
+            <div className="bg-blue-50 text-blue-700 p-3 rounded text-sm">
+              <strong>Note:</strong> You can track your complaint in "My
+              Complaints".
             </div>
 
-            <div className="d-grid gap-2">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin me-2"></i>
-                    Submitting Report...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-paper-plane me-2"></i>
-                    Submit Environmental Report
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 flex items-center justify-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>Submitting...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-paper-plane mr-2"></i>Submit Report
+                </>
+              )}
+            </button>
           </form>
         </div>
       </div>

@@ -44,6 +44,12 @@ const AdminSidebar = () => {
               </Link>
             </li>
             <li className="nav-item mb-2">
+              <Link to="/awaiting-confirmation" className="nav-link text-white">
+                Awaiting Confirmation
+              </Link>
+            </li>
+
+            <li className="nav-item mb-2">
               <Link to="/resolved-reports" className="nav-link text-white">
                 Resolved Reports
               </Link>

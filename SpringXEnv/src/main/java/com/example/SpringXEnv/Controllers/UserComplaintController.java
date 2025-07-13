@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -125,6 +127,17 @@ public class UserComplaintController {
         } else {
             logger.warning("Complaint " + id + " not found or unauthorized for user: " + loginIdentifier);
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/accept-resolution/{id}")
+    public ResponseEntity<Complaint> acceptResolution(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String userEmail = userDetails.getUsername();
+            Complaint updatedComplaint = complaintService.acceptResolution(id, userEmail);
+            return ResponseEntity.ok(updatedComplaint);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

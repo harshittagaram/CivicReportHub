@@ -89,6 +89,9 @@ public class ComplaintService {
                 .orElseThrow(() -> new RuntimeException("Complaint not found"));
         complaint.setStatus(status);
         complaint.setRemarks(remarks);
+        if ("Resolved".equalsIgnoreCase(status)) {
+            complaint.setUserAccepted(false);
+        }
         Complaint updatedComplaint = complaintRepository.save(complaint);
         logger.info("Updated complaint with ID " + id + ": " + updatedComplaint);
         return updatedComplaint;
@@ -129,6 +132,19 @@ public class ComplaintService {
         }
         logger.warning("Complaint with ID " + id + " not found for deletion");
         return false;
+    }
+
+    public Complaint acceptResolution(String id, String userEmail) {
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+        if (!"Resolved".equalsIgnoreCase(complaint.getStatus())) {
+            throw new RuntimeException("Complaint is not marked as resolved by admin");
+        }
+        // Optionally, check if the user is the owner (userName matches userEmail's name)
+        complaint.setUserAccepted(true);
+        Complaint updatedComplaint = complaintRepository.save(complaint);
+        logger.info("User accepted resolution for complaint ID " + id + ": " + updatedComplaint);
+        return updatedComplaint;
     }
 
     private String uploadFile(MultipartFile file) {

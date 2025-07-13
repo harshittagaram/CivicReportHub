@@ -5,6 +5,7 @@ import com.example.SpringXEnv.Repository.UserRepository;
 import com.example.SpringXEnv.Service.AppUserDetailsService;
 import com.example.SpringXEnv.io.AuthenticationRequest;
 import com.example.SpringXEnv.io.AuthenticationResponse;
+import com.example.SpringXEnv.io.UserProfile;
 import com.example.SpringXEnv.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,16 +80,19 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserEntity> getCurrentUser() {
+    public ResponseEntity<UserProfile> getCurrentUser() {
         try {
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            System.out.println("[/me] Authenticated email: " + email);
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            return ResponseEntity.ok(user);
+
+            UserProfile profile = new UserProfile(user.getId(), user.getName(), user.getEmail());
+            return ResponseEntity.ok(profile);
         } catch (Exception e) {
             System.err.println("Get user error: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 }

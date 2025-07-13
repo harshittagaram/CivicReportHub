@@ -63,7 +63,17 @@ const ReportDetail = () => {
       console.log("Update API Response:", response.data);
       setReport(response.data);
       if (refreshReports) refreshReports();
-      toast.success("Report updated successfully!");
+
+      // Custom toast based on status
+      if (status === "Resolved") {
+        toast.info("Marked as resolved. Awaiting user confirmation.");
+      } else if (status === "In Progress") {
+        toast.success("Report marked as In Progress.");
+      } else if (status === "Pending") {
+        toast.success("Report marked as Pending.");
+      } else {
+        toast.success("Report updated successfully!");
+      }
     } catch (error) {
       console.error("Error updating report:", error.response?.data || error);
       toast.error(
@@ -94,6 +104,22 @@ const ReportDetail = () => {
       );
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const getStatusDisplay = () => {
+    if (report.status === "Resolved" && report.userAccepted === false) {
+      return <span className="badge badge-warning">Awaiting User Confirmation</span>;
+    }
+    switch (report.status) {
+      case "Pending":
+        return <span className="badge badge-warning">Pending</span>;
+      case "In Progress":
+        return <span className="badge badge-info">In Progress</span>;
+      case "Resolved":
+        return <span className="badge badge-success">Resolved</span>;
+      default:
+        return <span className="badge badge-warning">Pending</span>;
     }
   };
 
@@ -162,7 +188,7 @@ const ReportDetail = () => {
               <strong>Category:</strong> {report.category || "Uncategorized"}
             </p>
             <p>
-              <strong>Status:</strong> {report.status || "Pending"}
+              <strong>Status:</strong> {getStatusDisplay()}
             </p>
             <p>
               <strong>Remarks:</strong> {report.remarks || "No remarks"}

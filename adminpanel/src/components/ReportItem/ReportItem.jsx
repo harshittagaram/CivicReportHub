@@ -10,6 +10,7 @@ const ReportItem = ({
   location,
   category,
   status,
+  userAccepted,
   latitude,
   longitude,
   address,
@@ -29,10 +30,27 @@ const ReportItem = ({
     location,
     category,
     status,
+    userAccepted,
     latitude,
     longitude,
     address,
   }); // Log props
+
+  const getStatusDisplay = () => {
+    if (status === "Resolved" && userAccepted === false) {
+      return <span className="badge badge-warning">Awaiting User Confirmation</span>;
+    }
+    switch (status) {
+      case "Pending":
+        return <span className="badge badge-warning">Pending</span>;
+      case "In Progress":
+        return <span className="badge badge-info">In Progress</span>;
+      case "Resolved":
+        return <span className="badge badge-success">Resolved</span>;
+      default:
+        return <span className="badge badge-warning">Pending</span>;
+    }
+  };
 
   return (
     <div
@@ -83,7 +101,7 @@ const ReportItem = ({
               <strong>Category:</strong> {category || "Uncategorized"}
             </p>
             <p>
-              <strong>Status:</strong> {status || "Pending"}
+              <strong>Status:</strong> {getStatusDisplay()}
             </p>
           </div>
         </div>

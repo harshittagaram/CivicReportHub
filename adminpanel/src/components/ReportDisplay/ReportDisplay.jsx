@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ReportContext } from "../ReportContext/ReportContext";
 import ReportItem from "../ReportItem/ReportItem";
 
-const ReportDisplay = ({ category, searchText, status }) => {
+const ReportDisplay = ({ category, searchText, status, showOnlyUnconfirmed = false }) => {
   const { reportList, error } = useContext(ReportContext);
   const filteredReports = reportList.filter((report) => {
     if (!report || !report.id) {
@@ -11,7 +11,13 @@ const ReportDisplay = ({ category, searchText, status }) => {
     }
 
     const matchesCategory = category === "All" || report.category === category;
-    const matchesStatus = !status || report.status === status;
+    const matchesStatus =
+      !status ||
+      (report.status === status &&
+        (!showOnlyUnconfirmed
+          ? status !== "Resolved" || report.userAccepted === true
+          : status !== "Resolved" || report.userAccepted === false));
+
     const matchesSearch = (report.userFullName || report.userName || "")
       .toLowerCase()
       .includes(searchText.toLowerCase());
@@ -42,6 +48,7 @@ const ReportDisplay = ({ category, searchText, status }) => {
               location={report.location}
               category={report.category}
               status={report.status}
+              userAccepted={report.userAccepted}
             />
           ))
         ) : (

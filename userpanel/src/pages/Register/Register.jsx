@@ -16,175 +16,149 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      setError("Passwords do not match. Please try again.");
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-    
+    if (password !== confirmPassword)
+      return setError("Passwords do not match.");
+    if (password.length < 6)
+      return setError("Password must be at least 6 characters.");
+
     setIsLoading(true);
     setError("");
-    
+
     try {
-      const payload = {
-        name,
-        email,
-        password,
-        role: "USER",
-      };
-      console.log("Sending register request with:", payload);
+      const payload = { name, email, password, role: "USER" };
       const response = await axios.post(
         "http://localhost:8081/api/user/register",
-        payload,
-        { headers: { "Content-Type": "application/json" } }
+        payload
       );
-      console.log("Register API Response:", response.data);
       const { token } = response.data;
-      if (!token) {
-        throw new Error("No token received from API");
-      }
-      console.log("Register Token received:", token);
+      if (!token) throw new Error("No token received");
       navigate("/login");
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        "Registration failed. Please try again with different credentials.";
+        "Registration failed.";
       setError(errorMessage);
-      console.error("Register error:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", paddingTop: "80px" }}>
-        <div className="form-container">
-          <div className="form-header">
-            <i className="fas fa-user-plus fa-3x text-primary mb-3"></i>
-            <h2>Citizen Registration</h2>
-            <p>Join the EcoAware Portal to report environmental issues and contribute to a cleaner community</p>
+      <div className="flex justify-center items-center pt-24 px-4">
+        <div className="bg-white shadow rounded-lg w-full max-w-md p-6">
+          <div className="text-center mb-6">
+            <i className="fas fa-user-plus text-blue-600 text-3xl mb-2"></i>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Citizen Registration
+            </h2>
+            <p className="text-sm text-gray-500">
+              Join the EcoAware Portal to report issues & help your community
+            </p>
           </div>
-          
-          <form onSubmit={handleSubmit}>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="alert alert-error">
-                <i className="fas fa-exclamation-circle me-2"></i>
+              <div className="bg-red-100 text-red-700 p-2 rounded text-sm">
+                <i className="fas fa-exclamation-circle mr-1"></i>
                 {error}
               </div>
             )}
-            
-            <div className="form-group">
-              <label htmlFor="name" className="form-label">
-                <i className="fas fa-user me-1"></i>
-                Full Name
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <i className="fas fa-user mr-1"></i> Full Name
               </label>
               <input
                 type="text"
-                className="form-control"
-                id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your full name as per government ID"
-                required
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Your full name"
                 disabled={isLoading}
+                required
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                <i className="fas fa-envelope me-1"></i>
-                Email Address
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <i className="fas fa-envelope mr-1"></i> Email Address
               </label>
               <input
                 type="email"
-                className="form-control"
-                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                required
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Email"
                 disabled={isLoading}
+                required
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">
-                <i className="fas fa-lock me-1"></i>
-                Password
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <i className="fas fa-lock mr-1"></i> Password
               </label>
               <input
                 type="password"
-                className="form-control"
-                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a strong password (minimum 6 characters)"
-                required
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Minimum 6 characters"
                 disabled={isLoading}
+                required
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="confirmPassword" className="form-label">
-                <i className="fas fa-lock me-1"></i>
-                Confirm Password
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <i className="fas fa-lock mr-1"></i> Confirm Password
               </label>
               <input
                 type="password"
-                className="form-control"
-                id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your password"
-                required
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Re-enter password"
                 disabled={isLoading}
+                required
               />
             </div>
-            
-            <div className="alert alert-info">
-              <i className="fas fa-info-circle me-2"></i>
-              <strong>Privacy Notice:</strong> Your information is protected under government data protection guidelines. 
-              We use your data only for environmental complaint management.
+
+            <div className="bg-blue-50 text-blue-800 p-2 rounded text-sm">
+              <i className="fas fa-info-circle mr-1"></i>
+              <strong>Privacy Notice:</strong> Your information is protected
+              under government data protection guidelines.
             </div>
-            
-            <button 
-              type="submit" 
-              className="btn btn-primary w-100"
+
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <i className="fas fa-spinner fa-spin me-2"></i>
-                  Creating Account...
+                  <i className="fas fa-spinner fa-spin mr-2"></i> Creating
+                  Account...
                 </>
               ) : (
                 <>
-                  <i className="fas fa-user-plus me-2"></i>
-                  Register as Citizen
+                  <i className="fas fa-user-plus mr-2"></i> Register as Citizen
                 </>
               )}
             </button>
-            
-            <div className="text-center mt-4">
-              <p className="mb-0">
-                Already have an account?{" "}
-                <Link to="/login" className="text-primary fw-bold">
-                  Sign In Here
-                </Link>
-              </p>
-            </div>
+
+            <p className="text-center text-sm mt-4">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Sign In Here
+              </Link>
+            </p>
           </form>
         </div>
       </div>

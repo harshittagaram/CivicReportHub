@@ -20,6 +20,7 @@ public class Complaint {
     private String remarks;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private boolean userAccepted = false;
 
     // Nested Address class
     public static class Address {
@@ -87,12 +88,16 @@ public class Complaint {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public boolean isUserAccepted() { return userAccepted; }
+    public void setUserAccepted(boolean userAccepted) { this.userAccepted = userAccepted; }
 
     @Override
     public String toString() {
         return "Complaint{id='" + id + "', userName='" + userName + "', description='" + description +
                 "', category='" + category + "', location='" + location + "', latitude=" + latitude +
                 ", longitude=" + longitude + ", address=" + address + ", status='" + status +
-                "', remarks='" + remarks + "', imageUrl='" + imageUrl + "', createdAt=" + createdAt + "}";
+                "', remarks='" + remarks + "', imageUrl='" + imageUrl + "', createdAt=" + createdAt +
+                ", userAccepted=" + userAccepted +
+                '}';
     }
 }

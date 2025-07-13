@@ -15,85 +15,86 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    
+
     try {
-      console.log("Sending login request with:", { email, password });
       const response = await axios.post(
         "http://localhost:8081/api/user/login",
-        { email, password }
+        {
+          email,
+          password,
+        }
       );
-      console.log("Login API Response:", response.data);
+
       const { token } = response.data;
       if (!token) {
         throw new Error("No token received from API");
       }
-      console.log("Calling login with token:", token);
+
       login(token);
-      console.log(
-        "Login function called, checking localStorage:",
-        localStorage.getItem("token")
-      );
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
         "Login failed. Please check your credentials and try again.";
       setError(errorMessage);
-      console.error("Login error:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", paddingTop: "80px" }}>
-        <div className="form-container">
-          <div className="form-header">
-            <i className="fas fa-user-circle fa-3x text-primary mb-3"></i>
-            <h2>Citizen Login</h2>
-            <p>Access your EcoAware Portal account to report environmental issues</p>
+      <div className="flex justify-center items-center min-h-screen pt-20 px-4">
+        <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+          <div className="text-center mb-6">
+            <i className="fas fa-user-circle text-4xl text-blue-500 mb-3"></i>
+            <h2 className="text-2xl font-bold text-gray-800">Citizen Login</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Access your EcoAware Portal account to report environmental issues
+            </p>
           </div>
-          
-          <form onSubmit={handleSubmit}>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="alert alert-error">
-                <i className="fas fa-exclamation-circle me-2"></i>
+              <div className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded flex items-center gap-2">
+                <i className="fas fa-exclamation-circle"></i>
                 {error}
               </div>
             )}
-            
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                <i className="fas fa-envelope me-1"></i>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                <i className="fas fa-envelope mr-1 text-gray-400"></i>
                 Email Address
               </label>
               <input
                 type="email"
-                className="form-control"
                 id="email"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your registered email address"
+                placeholder="Enter your registered email"
                 required
                 disabled={isLoading}
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">
-                <i className="fas fa-lock me-1"></i>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                <i className="fas fa-lock mr-1 text-gray-400"></i>
                 Password
               </label>
               <input
                 type="password"
-                className="form-control"
                 id="password"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -101,32 +102,33 @@ const Login = () => {
                 disabled={isLoading}
               />
             </div>
-            
-            <button 
-              type="submit" 
-              className="btn btn-primary w-100"
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <i className="fas fa-spinner fa-spin me-2"></i>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
                   Signing In...
                 </>
               ) : (
                 <>
-                  <i className="fas fa-sign-in-alt me-2"></i>
+                  <i className="fas fa-sign-in-alt mr-2"></i>
                   Sign In
                 </>
               )}
             </button>
-            
-            <div className="text-center mt-4">
-              <p className="mb-0">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-primary fw-bold">
-                  Register as a Citizen
-                </Link>
-              </p>
+
+            <div className="text-center mt-4 text-sm text-gray-600">
+              Don’t have an account?{" "}
+              <Link
+                to="/register"
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Register as a Citizen
+              </Link>
             </div>
           </form>
         </div>

@@ -9,6 +9,7 @@ import MyReports from "./pages/MyReports/MyReports";
 import UserReportDetail from "./pages/UserReportDetail/UserReportDetail";
 import { AuthContext } from "./context/AuthContext";
 import { toast } from "react-toastify";
+import Navbar from "./components/Navbar/Navbar";
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);

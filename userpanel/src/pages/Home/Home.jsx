@@ -6,105 +6,74 @@ import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background text-text-primary">
       <Navbar />
       <Hero />
       <FeatureCards />
-      
-      <footer className="footer">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-4 mb-4">
-              <h3>
-                <i className="fas fa-shield-alt me-2"></i>
-                EcoAware Portal
-              </h3>
-              <p>
-                Empowering citizens to actively participate in environmental protection. 
-                Report issues, track progress, and contribute to a cleaner, greener community.
-              </p>
-              {/* <div className="mt-3">
-                <i className="fas fa-phone me-2"></i>
-                <span>Helpline: 1800-123-4567</span>
-              </div>
-              <div className="mt-2">
-                <i className="fas fa-envelope me-2"></i>
-                <span>support@ecoaware.gov.in</span>
-              </div> */}
-            </div>
-            
-            <div className="col-md-4 mb-4">
-              <h3>Quick Services</h3>
-              <ul className="list-unstyled">
-                <li className="mb-2">
-                  <Link to="/report">
-                    <i className="fas fa-exclamation-triangle me-2"></i>
-                    Report Environmental Issue
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/my-reports">
-                    <i className="fas fa-list-alt me-2"></i>
-                    Track My Complaints
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">
-                    <i className="fas fa-info-circle me-2"></i>
-                    About the Portal
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/contact">
-                    <i className="fas fa-phone me-2"></i>
-                    Contact Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            
-            {/* <div className="col-md-4 mb-4">
-              <h3>Important Links</h3>
-              <ul className="list-unstyled">
-                <li className="mb-2">
-                  <a href="#" target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-file-alt me-2"></i>
-                    Privacy Policy
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-gavel me-2"></i>
-                    Terms of Service
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-question-circle me-2"></i>
-                    FAQ
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-download me-2"></i>
-                    Download App
-                  </a>
-                </li>
-              </ul>
-            </div> */}
+
+      {/* <footer className="bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-10 mt-16 rounded-t-2xl shadow-lg">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <i className="fas fa-shield-alt text-accent"></i>
+              EcoAware Portal
+            </h3>
+            <p>
+              Empowering citizens to actively participate in environmental
+              protection. Report issues, track progress, and contribute to a
+              cleaner, greener community.
+            </p>
           </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Services</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/report"
+                  className="hover:text-accent transition inline-flex items-center gap-2"
+                >
+                  <i className="fas fa-exclamation-triangle text-accent"></i>
+                  Report Environmental Issue
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/my-reports"
+                  className="hover:text-accent transition inline-flex items-center gap-2"
+                >
+                  <i className="fas fa-list-alt text-accent"></i>
+                  Track My Complaints
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="hover:text-accent transition inline-flex items-center gap-2"
+                >
+                  <i className="fas fa-info-circle text-accent"></i>
+                  About the Portal
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-accent transition inline-flex items-center gap-2"
+                >
+                  <i className="fas fa-phone text-accent"></i>
+                  Contact Support
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           
-          <div className="footer-bottom">
-            <div className="row align-items-center">
-              <div className="col-md-6">
-                <p className="mb-0">
-                  © 2025 EcoAware Portal. An Initiative by Tagaram Harshit.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
-      </footer>
+
+        <div className="border-t border-white/10 mt-10 pt-6 text-center text-sm text-white/80">
+          © 2025 EcoAware Portal. An Initiative by Tagaram Harshit.
+        </div>
+      </footer> */}
     </div>
   );
 };

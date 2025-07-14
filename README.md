@@ -54,7 +54,7 @@
 
 ### Backend (Spring Boot)
 ```bash
-git clone https://github.com/yourusername/civic-report-hub-backend.git
+git clone https://github.com/harshittagaram/civic-report-hub-backend.git
 cd civic-report-hub-backend
 
 # Configure application.properties:
